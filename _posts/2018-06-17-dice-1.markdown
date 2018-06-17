@@ -66,5 +66,5 @@ When you just need a single success the probability of success on N dice with re
 
 Coming up will be Part 2 (Expected Values) and Part 3 (More Successes and Failures).
 
-[seagull]: seagull.png
+[seagull]: {{ site.url | append: "/assets/img/seagull.jpg" }}
 

@@ -1,7 +1,20 @@
 ---
 ---
 
-@import "minima";
+@import "{{ site.theme }}";
+
+body:after {
+    content: "";
+    background: url({{ site.url | append: '/assets/img/SP_H_01.jpg'}}) no-repeat center center fixed;
+    background-size: cover;
+    opacity: 0.1;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: fixed;
+}
 
 /* TIMELINE CHARTS from http://alistapart.com/d/accessibledata/example-timeline.html*/
 .barchart { 
@@ -13,8 +26,7 @@
   float: left;
   width: 4em; 
   margin: 0 0.1em;
-  height: 24em;
-  list-style-type: none; 
+  height: 24em; 
 }
 .barchart li .barlabel { 
   display: block; 
@@ -145,7 +157,6 @@
 .barchart2 { 
   font-size: 0.75em; 
   height: 56em; 
-  list-style-type: none;
 }
 .barchart2 li { 
   position: relative;

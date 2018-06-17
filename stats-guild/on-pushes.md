@@ -23,7 +23,7 @@ If Midas were able to be pushed into the red part of the pitch, he'd have to end
 
 ![Ox and Midas 4][ox-and-midas-bad]
 
-[ox-and-midas]: https://qvadreme.github.io/guildball/images/oxmidas.png
-[ox-and-midas-end]: https://qvadreme.github.io/guildball/images/oxmidas_endpos.png
-[ox-and-midas-good]: https://qvadreme.github.io/guildball/images/oxmidas_goodpush.png
-[ox-and-midas-bad]: https://qvadreme.github.io/guildball/images/oxmidas_badpush.png
+[ox-and-midas]: {{ site.url | append: "/assets/img/oxmidas.png" }}
+[ox-and-midas-end]: {{ site.url | append: "/assets/img/oxmidas_endpos.png" }}
+[ox-and-midas-good]: {{ site.url | append: "/assets/img/oxmidas_goodpush.png" }}
+[ox-and-midas-bad]: {{ site.url | append: "/assets/img/oxmidas_badpush.png" }}
