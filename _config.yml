@@ -24,7 +24,7 @@ twitter_username: qvadreme
 
 # Build settings
 markdown: kramdown
-theme: jekyll-theme-midnight
+theme: minima
 plugins:
   - jekyll-feed
 
