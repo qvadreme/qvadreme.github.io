@@ -1,0 +1,70 @@
+---
+layout: post
+title:  50/50 (It Either Happens Or It Doesn't)
+date:   2018-06-17 21:04:40 +0100
+categories: dice
+---
+
+<script type="text/javascript">
+  window.MathJax = {
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  };
+</script>
+  
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
+
+Dice are a pretty important part of Guild Ball. In Guild Ball the dice are nearly always used as binary success or failure indicators - if the die passes the TN test then you have a success, otherwise you have a failure. Here is some potentially useful stuff about dice.
+
+### Part 1: Successes and Failures
+
+The main thing in Guild Ball that matters is the probability of a success or failure on a single die. If the TN is 4+ (such as for a 1 die Shot), then half the time you will succeed and the other half fail. If the TN is 6+ (maybe for a 1 die Blind on Nimble Velocity) then you'll succeed $\frac{1}{6}$ (0.167) of the time and fail the other $\frac{5}{6}$ (0.833) of the time.
+
+Generally, the probability of success, $P(S)$, is $\frac{(7 - TN)}{6}$ and the probability of failure, $P(F)$, is $\frac{TN - 1}{6}$. Probabilities across all possible outcomes always add to 1.
+
+Normal Shots and Character Plays may roll any number of dice (so are a little more complicated) but still only require the 1 success.
+
+For a 2 dice TN test, there are 4 possible outcomes:
+
+$S \& S$
+
+$S \& F$
+
+$F \& S$
+
+$F \& F$
+
+If only 1 success is required, the chance of the test succeeding is $P(S \& S) + P(S \& F) + P(F \& S)$ - since probabilities add to 1 this is the same as $1 - P(F \& F)$.
+
+The probability of both dice failing a TN 4+ test is $\frac{1}{4}$. This is because each die roll is an independent event, and the probability of two (or more!) independent events is calculated by multiplying the probabilities of the individual events. For a 2 dice TN 4+ test then $P(F \& F) = P(F) \times P(F) = \frac{1}{2} \times \frac{1}{2} = \frac{1}{4}$.
+
+Generally, the probability of both dice failing the TN test is the same as the probability of a single die failing the TN test squared - this means that it is $\frac{(TN - 1)^2}{36}$. In other words $P(F \& F) = P(F)^2$.
+
+So for a 2 dice TN test the probability of at least 1 success is $1 - P(F \& F) = 1 - P(F)^2$. For a TN 4+ test the probability of at least 1 success is $1 - \frac{1}{2} \times \frac{1}{2} = \frac{3}{4}$. It's probably not particularly useful, but generally it's $1 - \frac{(TN - 1)^2}{36}$.
+
+If more dice are being rolled for the TN test, but there's still only a single success required then the probability of success is found in a similar way - find the probability of all dice being failures and then subtract this from 1.
+
+This means that if N dice are rolled, the probability of at least 1 success is $1 - P(F)^N$ (again, not hugely helpful, but this is the same as $1 - \frac{(TN - 1)^N}{6^N}$).
+
+That's why the probability of a 3 dice TN 4+ shot going in is $1 - \frac{1}{8}$ (87.5%) and the probability of a 4 dice TN 4+ shot going in is $1 - \frac{1}{16}$ (93.75%). It's also why Character Plays on Nimble Velocity are risky - the probability of a 4 dice TN 6+ Puppet Master is $1 - (\frac{5}{6})^4$ ~ 0.52, so it will only work about half the time.
+
+***
+
+![Steven][seagull] says: _What about rerolls?_
+
+***
+
+On a single die the probability of failure is usually $P(F)$. With rerolls, the probability of failure is the probabilty that the initial roll fails *and* the reroll fails, so it's just $P(F)^2$.
+
+That means that when the probability of failure for N dice is $P(F)^{N}$ the probability of failure for N dice with rerolls is $P(F)^{2N}$, so the probability of at least one success is $1 - P(F)^{2N}$.
+
+When you just need a single success the probability of success on N dice with rerolls is exactly the same as the probability of success with 2N dice.
+
+***
+
+Coming up will be Part 2 (Expected Values) and Part 3 (More Successes and Failures).
+
+[seagull]: seagull.png
+
