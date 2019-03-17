@@ -57,25 +57,27 @@ function choose(n,k) {
     return factorial(n)/(factorial(k)*factorial(n-k));
 }
 
-function probGettingExactSuccesses(rolls, successes, TN) {
+function probGettingExactSuccesses(rolls, successes, TN, reRoll) {
 	probSuccessRoll = (7.0-TN)/6.0;
+	if (reRoll)
+		probSuccessRoll = 1 - (TN-1.0)*(TN-1.0)/36.0;
 	return Math.pow(probSuccessRoll, successes) * Math.pow(1 - probSuccessRoll, rolls-successes) * choose(rolls, successes);
 }
 
-function probGettingSuccesses(rolls, successes, TN) {
+function probGettingSuccesses(rolls, successes, TN, reRoll) {
 	result = 0.0;
 	var dice = rolls;
 	for (dice = rolls; dice >= successes; dice--) {
-        result += probGettingExactSuccesses(rolls, dice, TN);
+        result += probGettingExactSuccesses(rolls, dice, TN, reRoll);
 	}
 	return result;
 }
 
-function expectedDamage(TAC, TN, ARM, dmgBoost) {
+function expectedDamage(TAC, TN, ARM, dmgBoost, reRoll) {
     var result = 0.0;
     var dice = 1;
     for (dice = 1; dice + ARM <= TAC; dice++) {
-        chance = probGettingExactSuccesses(TAC, dice + ARM, TN);
+        chance = probGettingExactSuccesses(TAC, dice + ARM, TN, reRoll);
         tmpdice = dice;
         while (tmpdice > damageColumns.length) {
             result += chance * damageColumns[damageColumns.length - 1];
@@ -105,7 +107,7 @@ function damageCacheWrapper(step, damage) {
     return damageProbCache[step][damage];
 }
 
-function probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, DMG) {
+function probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, DMG, reRoll) {
     var result = 0.0;
     var column = 0;
     var tmpcolumn = 0;
@@ -126,35 +128,35 @@ function probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, DMG) {
             tmpDMG += dmgBoost;
         }
         if (DMG == tmpDMG) {
-            chance = probGettingExactSuccesses(TAC, column + ARM, TN);
+            chance = probGettingExactSuccesses(TAC, column + ARM, TN, reRoll);
             result += chance;
         }
     }
     if (DMG == 0) {
-        result += 1.0 - probGettingSuccesses(TAC, 1 + ARM, TN);
+        result += 1.0 - probGettingSuccesses(TAC, 1 + ARM, TN, reRoll);
     }
     return result;
 }
 
-function buildExactDamageCache(TAC, TN, ARM, dmgBoost, maxDMG, whichStep) {
+function buildExactDamageCache(TAC, TN, ARM, dmgBoost, maxDMG, whichStep, reRoll) {
     var result = 0.0;
     var damage = 0;
     damageProbCache[whichStep] = []
     if (whichStep == 0) {
         for (damage = 0; damage <= maxDMG; damage++) {
-            damageProbCache[whichStep][damage] = probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, damage);
+            damageProbCache[whichStep][damage] = probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, damage, reRoll);
         }
         return;
     }
     for (damage = 0; damage < (maxDMG + damageProbCache[whichStep - 1].length); damage++) {
         damageProbCache[whichStep][damage] = 0.0;
         for (damage2 = 0; damage2 <= damage; damage2++) {
-            damageProbCache[whichStep][damage] += probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, damage2) * damageCacheWrapper(whichStep - 1, damage - damage2);
+            damageProbCache[whichStep][damage] += probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, damage2, reRoll) * damageCacheWrapper(whichStep - 1, damage - damage2);
         }
     }
 }
 
-function printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharge, maxChargeDMG) {
+function printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharge, reRolls, maxChargeDMG) {
     var outstring = "";
     var damage = 0;
     var probability = [];
@@ -166,10 +168,12 @@ function printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharg
         isTooWide = true;
     }
     for (hitCount = 0; hitCount < HITS; hitCount++) {
-        buildExactDamageCache(TAC, TN, ARM, dmgBoost, 1 + (maxDMG/HITS), hitCount);
+		var reRoll = (!doCharge && hitCount == 0 && reRolls == "first") || (reRolls == "all");
+        buildExactDamageCache(TAC, TN, ARM, dmgBoost, 1 + (maxDMG/HITS), hitCount, reRoll);
     }
 	if (doCharge) {
-		buildExactDamageCache(TAC + 4, TN, ARM, dmgBoost, maxChargeDMG, HITS);
+		var reRoll = reRolls == "first" || reRolls == "all";
+		buildExactDamageCache(TAC + 4, TN, ARM, dmgBoost, maxChargeDMG, HITS, reRoll);
 	}
     for (damage = 0; damage <= maxDMG ; damage++) {
 		if (doCharge) {
@@ -194,7 +198,7 @@ function printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharg
     return outstring;
 }
 
-function printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doCharge, TAC2, TN2, ARM2, dmgBoost2, HITS2, doCharge2, maxDMG, maxChargeDMG) {
+function printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doCharge, reRolls, TAC2, TN2, ARM2, dmgBoost2, HITS2, doCharge2, reRolls2, maxDMG, maxChargeDMG) {
 	var outstring = "";
 	var damage = 0;
 	var probability = [];
@@ -212,10 +216,12 @@ function printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doCharge
 	damageColumns = players[document.getElementById("player").value].playbook;
 
     for (hitCount = 0; hitCount < HITS; hitCount++) {
-        buildExactDamageCache(TAC, TN, ARM, dmgBoost, 1 + (maxDMG/HITS), hitCount);
+		var reRoll = (!doCharge && hitCount == 0 && reRolls == "first") || (reRolls == "all");
+        buildExactDamageCache(TAC, TN, ARM, dmgBoost, 1 + (maxDMG/HITS), hitCount, reRoll);
     }
 	if (doCharge) {
-		buildExactDamageCache(TAC + 4, TN, ARM, dmgBoost, maxChargeDMG, HITS);
+		var reRoll = reRolls == "first" || reRolls == "all";
+		buildExactDamageCache(TAC + 4, TN, ARM, dmgBoost, maxChargeDMG, HITS, reRoll);
 	}
     for (damage = 0; damage <= maxDMG ; damage++) {
 		if (doCharge) {
@@ -235,10 +241,12 @@ function printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doCharge
 	damageColumns = players[document.getElementById("player2").value].playbook;
 	
     for (hitCount = 0; hitCount < HITS2; hitCount++) {
-        buildExactDamageCache(TAC2, TN2, ARM2, dmgBoost2, 1 + (maxDMG/HITS2), hitCount);
+		var reRoll = (!doCharge2 && hitCount == 0 && reRolls2 == "first") || (reRolls2 == "all");
+        buildExactDamageCache(TAC2, TN2, ARM2, dmgBoost2, 1 + (maxDMG/HITS2), hitCount, reRoll);
     }
 	if (doCharge2) {
-		buildExactDamageCache(TAC2 + 4, TN2, ARM2, dmgBoost2, maxChargeDMG, HITS2);
+		var reRoll = reRolls2 == "first" || reRolls2 == "all";
+		buildExactDamageCache(TAC2 + 4, TN2, ARM2, dmgBoost2, maxChargeDMG, HITS2, reRoll);
 	}
     for (damage = 0; damage <= maxDMG ; damage++) {
 		if (doCharge2) {
@@ -267,12 +275,14 @@ function calculateBarChart() {
 	var ARM = parseInt(document.getElementById("ARM").value);
 	var dmgBoost = parseInt(document.getElementById("dmgBoost").value);
 	var HITS = parseInt(document.getElementById("attacks").value);
+	var reRolls = document.getElementById("rerolls").value;
 	
 	var TAC2 = parseInt(document.getElementById("TAC2").value);
 	var TN2 = parseInt(document.getElementById("TN2").value);
 	var ARM2 = parseInt(document.getElementById("ARM2").value);
 	var dmgBoost2 = parseInt(document.getElementById("dmgBoost2").value);
 	var HITS2 = parseInt(document.getElementById("attacks2").value);
+	var reRolls2 = document.getElementById("rerolls2").value;
 	
 	damageColumns = players[document.getElementById("player").value].playbook;
 
@@ -369,12 +379,12 @@ function calculateBarChart() {
 	var time = performance.now();
 	if (compareBox.checked == false)
 	{
-		document.getElementById("thechart").innerHTML = printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doChargeAttack.checked, maxChargeDMG);
+		document.getElementById("thechart").innerHTML = printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doChargeAttack.checked, reRolls, maxChargeDMG);
 		document.getElementById("thechart").className = "barchart";
 	}
 	else if (compareBox.checked == true)
 	{
-		document.getElementById("thechart").innerHTML = printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doChargeAttack.checked, TAC2, TN2, ARM2, dmgBoost2, HITS2, doChargeAttack2.checked, maxDMG, maxChargeDMG);
+		document.getElementById("thechart").innerHTML = printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doChargeAttack.checked, reRolls, TAC2, TN2, ARM2, dmgBoost2, HITS2, doChargeAttack2.checked, reRolls2, maxDMG, maxChargeDMG);
 		document.getElementById("thechart").className = "barchart2";
 	}
 	var taken = performance.now() - time;

@@ -24,6 +24,12 @@ Charge Attack doesn't currently take into account abilities like Forceful Blow o
 		Attacks:
 		<input id="attacks" value="4">
 		Add Charge Attack: <input type="checkbox" id="doChargeAttack">
+		Rerolls:
+		<select id="rerolls">
+		<option value="none">None</option>
+		<option value="first">First Attack</option>
+		<option value="all">All Attacks</option>
+		</select>
 </div>
 
 <div id="extraplayer">	
@@ -42,6 +48,12 @@ Charge Attack doesn't currently take into account abilities like Forceful Blow o
 		Attacks:
 		<input id="attacks2" value="4">
 		Add Charge Attack: <input type="checkbox" id="doChargeAttack2">
+		Rerolls:
+		<select id="rerolls2">
+		<option value="none">None</option>
+		<option value="first">First Attack</option>
+		<option value="all">All Attacks</option>
+		</select>
 </div>
 
 <br />
