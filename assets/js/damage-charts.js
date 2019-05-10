@@ -22,12 +22,9 @@ function setUpPlayerTables() {
 
 setUpPlayerTables();
 
-playerTable.addEventListener("change", didChangePlayerSelection);
-playerTable2.addEventListener("change", didChangePlayerSelection);
 
 compareBox = document.getElementById("compareCharts");
 
-compareBox.addEventListener("change", didChangeCompareCharts);
 
 attacksInput = document.getElementById("attacks");
 attacksInput2 = document.getElementById("attacks2");
@@ -400,6 +397,7 @@ function calculateBarChart() {
 	{
 		document.getElementById("chartkey").style.display = 'none';
 	}
+	setupSearchParamsFromBoxes();
 }
 
 function didChangePlayerSelection() {
@@ -442,3 +440,98 @@ function didChangeAttacks() {
 		document.getElementById("debugMessages").innerHTML = "";
 	}
 }
+
+function setupSearchParamsFromBoxes() {
+	const params = new URLSearchParams(location.search);
+	params.set('compare', compareBox.checked);
+	params.set('player', document.getElementById("player").value);
+	params.set('tac', document.getElementById("TAC").value);
+	params.set('tn', document.getElementById("TN").value);
+	params.set('arm', document.getElementById("ARM").value);
+	params.set('dmg', document.getElementById("dmgBoost").value);
+	params.set('attacks', document.getElementById("attacks").value);
+	params.set('rerolls', document.getElementById("rerolls").value);
+	params.set('charge', doChargeAttack.checked);
+	if ( compareBox.checked )
+	{
+		params.set('player2', document.getElementById("player2").value);
+		params.set('tac2', document.getElementById("TAC2").value);
+		params.set('tn2', document.getElementById("TN2").value);
+		params.set('arm2', document.getElementById("ARM2").value);
+		params.set('dmg2', document.getElementById("dmgBoost2").value);
+		params.set('attacks2', document.getElementById("attacks2").value);
+		params.set('rerolls2', document.getElementById("rerolls2").value);
+		params.set('charge2', doChargeAttack2.checked);
+	}
+	window.history.replaceState({}, '', location.pathname + '?' + params);
+}
+
+function setupBoxesFromSearchParams() {
+	if ('URLSearchParams' in window == false)
+		return;
+	const params = new URLSearchParams(location.search);
+
+	var compare = params.get('compare');
+	var player = params.get('player');
+	var TAC = params.get('tac');  
+	var TN = params.get('tn');
+	var ARM = params.get('arm');
+	var dmgBoost = params.get('dmg');
+	var HITS = params.get('attacks');
+	var reRolls = params.get('rerolls');
+	var charge = params.get('charge');
+
+	var player2 = params.get('player2');
+	var TAC2 = params.get('tac2');  
+	var TN2 = params.get('tn2');
+	var ARM2 = params.get('arm2');
+	var dmgBoost2 = params.get('dmg2');
+	var HITS2 = params.get('attacks2');
+	var reRolls2 = params.get('rerolls2');
+	var charge2 = params.get('charge2');
+
+	if ( player == null )
+		return;
+
+	document.getElementById("player").value = player;
+	document.getElementById("TAC").value = TAC;
+	document.getElementById("TN").value = TN;
+	document.getElementById("ARM").value = ARM;
+	document.getElementById("dmgBoost").value = dmgBoost;
+	document.getElementById("attacks").value = HITS;
+	document.getElementById("rerolls").value = reRolls;
+	
+	if ( charge == "true" )
+		doChargeAttack.checked = true;
+	else
+		doChargeAttack.chcked = false;
+
+	if ( player2 != null && compare == "true" )
+	{
+		compareBox.checked = true;
+		document.getElementById("player2").value = player2;
+		document.getElementById("TAC2").value = TAC2;
+		document.getElementById("TN2").value = TN2;
+		document.getElementById("ARM2").value = ARM2;
+		document.getElementById("dmgBoost2").value = dmgBoost2;
+		document.getElementById("attacks2").value = HITS2;
+		document.getElementById("rerolls2").value = reRolls2;
+
+		if ( charge2 == true )
+			doChargeAttack2.checked = true;
+		else
+			doChargeAttack2.chcked = false;
+	}
+
+	didChangeCompareCharts();
+
+	if ( calculateButton.disabled == false )
+		calculateBarChart();
+}
+
+setupBoxesFromSearchParams();
+
+compareBox.addEventListener("change", didChangeCompareCharts);
+
+playerTable.addEventListener("change", didChangePlayerSelection);
+playerTable2.addEventListener("change", didChangePlayerSelection);
