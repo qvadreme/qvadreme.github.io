@@ -6,11 +6,11 @@ guilds = {
 	},
 	"blacksmiths":{
 		"name":"Blacksmith's Guild",
-		"players":["anvil", "burnish", "farris", "ferrite", "furnace", "hearth", "alloy", "bolt", "cast", "cinder", "vcinder", "iron", "sledge"]
+		"players":["anvil", "burnish", "culverin", "farris", "ferrite", "furnace", "hearth", "alloy", "bolt", "cast", "cinder", "vcinder", "cutlass", "iron", "sledge"]
 	},
 	"brewers":{
 		"name":"Brewer's Guild",
-		"players":["tapper", "esters", "scum", "quaff", "vdecimate", "friday", "hooper", "mash", "pintpot", "spigot", "vspigot", "stave", "stoker", "lucky"]
+		"players":["tapper", "esters", "corker", "scum", "quaff", "vdecimate", "friday", "hooper", "mash", "pintpot", "spigot", "vspigot", "stave", "stoker", "lucky"]
 	},
 	"butchers":{
 		"name":"Butcher's Guild",
@@ -23,7 +23,7 @@ guilds = {
 	},
 	"engineers":{
 		"name":"Engineer's Guild",
-		"players":["ballista", "pinvice", "mainspring", "mother", "colossus", "harriet", "hoist", "locus", "ratchet", "salvo", "velocity", "vvelocity", "compound", "spade", "fuse"]
+		"players":["ballista", "pinvice", "rivet", "mainspring", "mother", "colossus", "harriet", "hoist", "locus", "ratchet", "salvo", "velocity", "vvelocity", "compound", "spade", "fuse"]
 	},
 	"falconers":{
 		"name":"Falconer's Guild",
@@ -43,7 +43,7 @@ guilds = {
 	},
 	"masons":{
 		"name":"Mason's Guild",
-		"players":["honour", "hammer", "marbles", "wrecker", "brick", "chisel", "vchisel", "flint", "granite", "harmony", "vharmony", "mallet", "tower", "lucky"]
+		"players":["honour", "hammer", "corbelli", "marbles", "wrecker", "brick", "chisel", "vchisel", "flint", "granite", "harmony", "vharmony", "mallet", "tower", "lucky"]
 	},
 	"miners":{
 		"name":"Miner's Guild",
@@ -1161,7 +1161,7 @@ players = {
 	"shaft":{
 		"name":"Shaft",
 		"guilds":["miners"],
-		"playbook":[1, 1, 1, 2, 3, 3],
+		"playbook":[0, 0, 1, 2, 2, 2],
 		"pb_full":null
 	},
 	"wellington":{
@@ -1199,5 +1199,50 @@ players = {
 		"guilds":["cooks"],
 		"playbook":[1, 2, 2, 3],
 		"pb_full":null
+	},
+	"rivet":{
+		"name":"Rivet",
+		"guilds":["engineers"],
+		"playbook":[1, 2, 2, 3, 3, 4],
+		"pb_full":[
+			[["1", false], [null, false], [null, false], ["pp", false], [null, false], [null, false]],
+			[["T", true], ["2p", true], ["k", false], ["3", true], ["kp", true], ["4", true]]
+		]
+	},
+	"corker":{
+		"name":"Corker",
+		"guilds":["brewers"],
+		"playbook":[1, 2, 2, 3, 3, 4],
+		"pb_full":[
+			[["1", false], ["2", false], [null, false], ["T", false], [null, false], [null, false]],
+			[["p", true], ["k", true], ["pp", true], ["3", true], ["kpp", true], ["4", true]]
+		]
+	},
+	"corbelli":{
+		"name":"Corbelli",
+		"guilds":["masons"],
+		"playbook":[0, 2, 2, 2, 3],
+		"pb_full":[
+			[["T", true], ["2", true], [null, false], [null, false], [null, false]],
+			[["d", true], ["dd", true], ["pd", true], ["k", false], ["3", false]]
+		]
+	},
+	"culverin":{
+		"name":"Culverin",
+		"guilds":["blacksmiths"],
+		"playbook":[1, 1, 1, 3],
+		"pb_full":[
+			[["1", false], ["T", false], ["pp", true], [null, false]],
+			[["p", true], ["b", true], ["k", true], ["3", false]]
+		]
+	},
+	"cutlass":{
+		"name":"Cutlass",
+		"guilds":["blacksmiths"],
+		"playbook":[1, 1, 3, 3, 5, 6],
+		"pb_full":[
+			[["d", false], ["T", false], [null, false], [null, false], [null, false], [null, false]],
+			[["1", true], ["1dd", true], ["3", true], ["pd", false], ["5", true], ["6", true]]
+		]
 	}
 }
