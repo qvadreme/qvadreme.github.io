@@ -14,7 +14,7 @@ guilds = {
 	},
 	"butchers":{
 		"name":"Butcher's Guild",
-		"players":["ox", "fillet", "vboar", "princess", "truffles", "boar", "boiler", "brisket", "vbrisket", "vgutter", "meathook", "vox", "shank", "tenderiser", "roast", "cinnamon"],
+		"players":["ox", "fillet", "vboar", "princess", "truffles", "boar", "boiler", "brisket", "vbrisket", "vgutter", "meathook", "vox", "shank", "tenderiser", "layne", "roast", "cinnamon"],
 		"colour":"#da4141"
 	},
 	"cooks":{
@@ -31,15 +31,15 @@ guilds = {
 	},
 	"farmers":{
 		"name":"Farmer's Guild",
-		"players":["grange", "thresher", "peck", "buckwheat", "bushel", "fallow", "harrow", "vhonour", "jackstraw", "millstone", "ploughman", "tater", "windle"]
+		"players":["grange", "thresher", "peck", "buckwheat", "bushel", "fallow", "harrow", "vhonour", "jackstraw", "millstone", "ploughman", "tater", "windle", "amber"]
 	},
 	"fish":{
 		"name":"Fishermen's Guild",
-		"players":["shark", "corsair", "yukai", "salt", "tentacles", "angel", "greyscales", "hag", "jac", "kraken", "sakana", "vsakana", "siren", "vsiren", "fathom", "horizon"]
+		"players":["shark", "corsair", "yukai", "salt", "tentacles", "angel", "greyscales", "hag", "jac", "kraken", "sakana", "vsakana", "siren", "vsiren", "knuckles", "fathom", "horizon"]
 	},
 	"hunters":{
 		"name":"Hunter's Guild",
-		"players":["theron", "skatha", "steeljaw", "fahad", "snow", "chaska", "egret", "hearne", "vhearne", "jaecar", "vminx", "seenah", "ulfr", "zarola", "mataagi", "minerva"]
+		"players":["theron", "skatha", "steeljaw", "fahad", "snow", "chaska", "egret", "hearne", "vhearne", "jaecar", "vminx", "seenah", "ulfr", "zarola", "edge", "mataagi", "minerva"]
 	},
 	"masons":{
 		"name":"Mason's Guild",
@@ -51,7 +51,7 @@ guilds = {
 	},
 	"morticians":{
 		"name":"Mortician's Guild",
-		"players":["obulus", "scalpel", "mourn", "dirge", "vileswarm", "bonesaw", "brainpan", "memory", "casket", "cosset", "ghast", "graves", "vgraves", "vhemlocke", "silence", "pelage", "skulk"]
+		"players":["obulus", "scalpel", "mourn", "dirge", "vileswarm", "bonesaw", "brainpan", "memory", "casket", "cosset", "ghast", "graves", "vgraves", "vhemlocke", "silence", "gaffer", "pelage", "skulk"]
 	},
 	"navigators":{
 		"name":"Navigator's Guild",
@@ -77,8 +77,8 @@ players = {
 		"guilds":["alchemists"],
 		"playbook":[1, 1, 1, 2, 2, 3],
 		"pb_full":[
-			[["T", false], [null, false], [null, false], [null, false], [null, false], ["3", false]],
-			[["1", false], ["pd", true], ["b", true], ["2", true], ["k", false], ["dpp", true]]
+			[["1", false], [null, false], [null, false], [null, false], [null, false], ["3", false]],
+			[["T", true], ["pd", true], ["b", true], ["2", true], ["k", false], ["ppdd", true]]
 		]
 	},
 	"smoke":{
@@ -315,7 +315,7 @@ players = {
 	"stoker":{
 		"name":"Stoker",
 		"guilds":["brewers"],
-		"playbook":[1, 1, 2, 3],
+		"playbook":[1, 2, 2, 3],
 		"pb_full":null
 	},
 	"fillet":{
@@ -333,7 +333,7 @@ players = {
 	"vboar":{
 		"name":"Veteran Boar",
 		"guilds":["butchers"],
-		"playbook":[1, 2, 2, 3, 4, 5, 6],
+		"playbook":[1, 2, 2, 3, 3, 5, 6],
 		"pb_full":null
 	},
 	"princess":{
@@ -747,7 +747,7 @@ players = {
 	"jaecar":{
 		"name":"Jaecar",
 		"guilds":["hunters"],
-		"playbook":[1, 2, 2, 2, 3, 4],
+		"playbook":[1, 2, 2, 3, 3, 4],
 		"pb_full":null
 	},
 	"vminx":{
@@ -801,7 +801,7 @@ players = {
 	"brick":{
 		"name":"Brick",
 		"guilds":["masons"],
-		"playbook":[1, 2, 2, 3, 4],
+		"playbook":[0, 2, 2, 3, 4],
 		"pb_full":null
 	},
 	"chisel":{
@@ -831,7 +831,7 @@ players = {
 	"harmony":{
 		"name":"Harmony",
 		"guilds":["masons"],
-		"playbook":[1, 1, 2, 2, 3, 4],
+		"playbook":[1, 1, 2, 2, 3],
 		"pb_full":null
 	},
 	"vharmony":{
@@ -1059,7 +1059,7 @@ players = {
 	"vrage":{
 		"name":"Veteran Rage",
 		"guilds":["union"],
-		"playbook":[1, 2, 2, 3, 3, 3, 4],
+		"playbook":[1, 2, 3, 3, 3, 3, 4],
 		"pb_full":null
 	},
 	"coin":{
@@ -1089,7 +1089,7 @@ players = {
 	"decimate":{
 		"name":"Decimate",
 		"guilds":["union"],
-		"playbook":[1, 2, 2, 2, 3, 3],
+		"playbook":[1, 2, 2, 2, 3, 4],
 		"pb_full":null
 	},
 	"fangtooth":{
@@ -1113,7 +1113,7 @@ players = {
 	"minx":{
 		"name":"Minx",
 		"guilds":["union"],
-		"playbook":[1, 1, 2, 2, 3],
+		"playbook":[1, 2, 3, 3, 4],
 		"pb_full":null
 	},
 	"rage":{
@@ -1167,7 +1167,7 @@ players = {
 	"wellington":{
 		"name":"Wellington",
 		"guilds":["cooks"],
-		"playbook":[1, 1, 2, 3, 3],
+		"playbook":[1, 1, 2, 3, 4],
 		"pb_full":null
 	},
 	"pepper":{
@@ -1191,7 +1191,7 @@ players = {
 	"spice":{
 		"name":"Spice",
 		"guilds":["cooks"],
-		"playbook":[1, 1, 2, 2, 3],
+		"playbook":[1, 2, 2, 3, 4],
 		"pb_full":null
 	},
 	"sugar":{
@@ -1221,9 +1221,9 @@ players = {
 	"corbelli":{
 		"name":"Corbelli",
 		"guilds":["masons"],
-		"playbook":[0, 2, 2, 2, 3],
+		"playbook":[0, 0, 2, 2, 3],
 		"pb_full":[
-			[["T", true], ["2", true], [null, false], [null, false], [null, false]],
+			[["T", true], [null, false], ["2", true], [null, false], [null, false]],
 			[["d", true], ["dd", true], ["pd", true], ["k", false], ["3", false]]
 		]
 	},
@@ -1243,6 +1243,51 @@ players = {
 		"pb_full":[
 			[["d", false], ["T", false], [null, false], [null, false], [null, false], [null, false]],
 			[["1", true], ["1dd", true], ["3", true], ["pd", false], ["5", true], ["6", true]]
+		]
+	},
+	"layne":{
+		"name":"Layne",
+		"guilds":["butchers"],
+		"playbook":[1, 2, 2, 2, 3],
+		"pb_full":[
+			[[null, false], ["dd", false], [null, false], [null, false], [null, false]],
+			[["1d", true], ["2", true], ["T", false], ["dd", true], ["T3", true]]
+		]
+	},
+	"amber":{
+		"name":"Amber",
+		"guilds":["farmers"],
+		"playbook":[2, 2, 2, 3, 4],
+		"pb_full":[
+			[["d", false], [null, false], ["k", false], ["3", true], [null, false]],
+			[["2", true], ["Tb", true], ["2d", true], ["dd", true], ["4", true]]
+		]
+	},	
+	"knuckles":{
+		"name":"Knuckles",
+		"guilds":["fish"],
+		"playbook":[1, 2, 2, 2, 3, 4],
+		"pb_full":[
+			[["1", false], ["2", false], ["b", true], ["Tpp", false], [null, false], [null, false]],
+			[["p", true], ["T", false], ["pp", true], ["k", true], ["3", false], ["4", false]]
+		]
+	},
+	"edge":{
+		"name":"Edge",
+		"guilds":["hunters"],
+		"playbook":[1, 2, 2, 3],
+		"pb_full":[
+			[["1", false], [null, false], [null, false], ["3", false]],
+			[["Td", true], ["2b", true], ["pd", false], ["Tdd", true]]
+		]
+	},
+	"gaffer":{
+		"name":"Gaffer",
+		"guilds":["morticians"],
+		"playbook":[1, 1, 2, 2, 3],
+		"pb_full":[
+			[["1", false], [null, false], ["pp", false], [null, false], [null, false]],
+			[["p", true], ["T", true], ["2", false], ["b", true], ["3", true]]
 		]
 	}
 }
