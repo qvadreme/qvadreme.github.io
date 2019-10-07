@@ -6,6 +6,12 @@ calculateButton.addEventListener("click", calculateBarChart);
 playerTable = document.getElementById("player");
 playerTable2 = document.getElementById("player2");
 
+playBookTable = document.getElementById("playBook1");
+playBookTable2 = document.getElementById("playBook2");
+
+playBookSVG = document.getElementById("playBookSVG1")
+
+var draw = SVG('playBookSVG1').size(250, 75);
 function setUpPlayerTables() {
 	var selectString = "";
 	for (var guild_name in guilds) {
@@ -22,9 +28,135 @@ function setUpPlayerTables() {
 
 setUpPlayerTables();
 
+function translatePlayBookEntry(playBookEntry) {
+	var playBookEntryString = playBookEntry[0];
+	if (playBookEntryString == null) {
+		return "";
+	}
+	var playBookDrawResult = "";
+	var lastSymbol = null;
+	for (var i = 0; i < playBookEntryString.length; i++) {
+		switch(playBookEntryString[i]) {
+			case "b": //GB symbol
+				if (i != 0) {
+					playBookDrawResult += "\n";
+				}
+				playBookDrawResult += "GB";
+				break;
+			case "c": //Championship symbol
+				if (i != 0) {
+					playBookDrawResult += "\n";
+				}
+				playBookDrawResult += "GC";
+				break;
+			case "T":
+				if (i != 0) {
+					playBookDrawResult += "\n";
+				}
+				playBookDrawResult += "T";
+				break;
+			case "k":
+				if (i != 0) {
+					playBookDrawResult += "\n";
+				}
+				playBookDrawResult += "KD";
+				break;
+			case "d":
+				if (i != 0) {
+					if (playBookEntryString[i-1] == "d") {
+					}
+					else if (playBookEntryString[i-1] == "p" && i+1 == playBookEntryString.length) {
+					}
+					else {
+						playBookDrawResult += "\n";
+					}
+				} 
+				playBookDrawResult += "<";
+				break;
+			case "p":
+				if (i != 0) {
+					if (playBookEntryString[i-1] == "p") {
+					}
+					else {
+						playBookDrawResult += "\n";
+					}
+				} 
+				playBookDrawResult += ">";
+				break;
+			default:
+				if (i != 0) {
+					playBookDrawResult += "\n";
+				}
+				playBookDrawResult += playBookEntryString[i];
+				break;
+		}
+	}
+	return playBookDrawResult;
+}
+
+function drawPlaybook(playerName) {
+	var player = players[playerName];
+	var playBookString = "";
+	playBookTable.innerHTML = "";
+	draw.clear();
+	if (player == undefined) {
+		return;
+	}
+	if (player.pb_full == null) {
+		return;
+	}
+	if (player.pb_full.length != 2) {
+		return;
+	}
+	var pb_length = player.pb_full[0].length;
+	if (player.pb_full[1].length != pb_length) {
+		return;
+	}
+	for (var row = 0; row < 2; row++) {
+		playBookString += "<tr id=\"pb1r" + (row + 1) + "\">";
+		for (var index = 0; index < pb_length; index++) {
+			var translatedString = translatePlayBookEntry(player.pb_full[row][index]);
+//			playBookString += "<td class =" + (player.pb_full[row][index][1] ? player.guilds[0] : "") +
+//				">" + translatedString + "</td>";
+			if (translatedString !== "") {
+				var circle = draw.circle(30);
+				var text = draw.text(translatedString);
+				text.font('size', 10);
+				text.font('font-family', 'Calluna-Regular');
+				text.addClass('pnums');
+				text.rebuild(true);
+				var maxSize = Math.max(text.bbox().w, text.bbox().h);
+				var ratio = 24.0 / maxSize;
+				text.font('size', 10*ratio);
+				var x_offset = (30.0 - text.bbox().w)/2.0;
+				var y_offset = (30.0 - text.bbox().h)/2.0;
+				var guild_colour = guilds[player.guilds[0]].colour;
+				if (guild_colour == undefined)
+					guild_colour = '#222222'
+
+				if (player.pb_full[row][index][1]) {
+					circle.fill(guild_colour);
+					circle.stroke('#000000');
+					text.stroke('#ffffff');
+					text.fill('#ffffff');
+				}
+				else {
+					circle.fill('#ffffff');
+					circle.stroke('#000000');
+					text.stroke('#000000');
+				}
+
+				circle.move(5 + 35*index, 5 + 35*row);
+				text.move(5 + x_offset + 35*index, 5 + y_offset + 35*row);
+			}
+			
+		}
+		playBookString += "</tr>";
+	}
+	playBookTable.innerHTML = playBookString;
+}
 
 compareBox = document.getElementById("compareCharts");
-
 
 attacksInput = document.getElementById("attacks");
 attacksInput2 = document.getElementById("attacks2");
@@ -38,230 +170,77 @@ doChargeAttack2 = document.getElementById("doChargeAttack2");
 didChangeCompareCharts();
 document.getElementById("chartkey").style.display = 'none';
 
-damageColumns = [1, 1, 1, 2, 2, 3, 3];
-
-damageProbCache = [];
-
-function factorial(f) {
-    if (f <= 0)
-        return 1;
-    return f * factorial(f-1);
-}
-
-function choose(n,k) {
-    if (n < k)
-        return 0;
-    return factorial(n)/(factorial(k)*factorial(n-k));
-}
-
-function probGettingExactSuccesses(rolls, successes, TN, reRoll) {
-	probSuccessRoll = (7.0-TN)/6.0;
-	if (reRoll)
-		probSuccessRoll = 1 - (TN-1.0)*(TN-1.0)/36.0;
-	return Math.pow(probSuccessRoll, successes) * Math.pow(1 - probSuccessRoll, rolls-successes) * choose(rolls, successes);
-}
-
-function probGettingSuccesses(rolls, successes, TN, reRoll) {
-	result = 0.0;
-	var dice = rolls;
-	for (dice = rolls; dice >= successes; dice--) {
-        result += probGettingExactSuccesses(rolls, dice, TN, reRoll);
-	}
-	return result;
-}
-
-function expectedDamage(TAC, TN, ARM, dmgBoost, reRoll) {
-    var result = 0.0;
-    var dice = 1;
-    for (dice = 1; dice + ARM <= TAC; dice++) {
-        chance = probGettingExactSuccesses(TAC, dice + ARM, TN, reRoll);
-        tmpdice = dice;
-        while (tmpdice > damageColumns.length) {
-            result += chance * damageColumns[damageColumns.length - 1];
-            tmpdice -= damageColumns.length;
-            if (dmgBoost != 0) {
-                result += dmgBoost * chance;
-            }
-        }
-        result += chance * damageColumns[tmpdice - 1];
-        if (dmgBoost != 0) {
-            result += dmgBoost * chance;
-        }
-    }
-    return result;
-}
-
-
-function damageCacheWrapper(step, damage) {
-    if (damageProbCache[step] == undefined)
-    {
-        return 0.0;
-    }
-    if (damageProbCache[step][damage] == undefined)
-    {
-        return 0.0;
-    }
-    return damageProbCache[step][damage];
-}
-
-function probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, DMG, reRoll) {
-    var result = 0.0;
-    var column = 0;
-    var tmpcolumn = 0;
-    var tmpDMG = 0;
-    var chance = 0.0;
-    for (column = 1; column <= TAC; column++) {
-        tmpcolumn = column;
-        tmpDMG = 0;
-        while (tmpcolumn > damageColumns.length) {
-            tmpDMG += damageColumns[damageColumns.length - 1];
-            tmpcolumn -= damageColumns.length;
-            if (dmgBoost != 0) {
-                tmpDMG += dmgBoost;
-            }
-        }
-        tmpDMG += damageColumns[tmpcolumn - 1];
-        if (dmgBoost != 0) {
-            tmpDMG += dmgBoost;
-        }
-        if (DMG == tmpDMG) {
-            chance = probGettingExactSuccesses(TAC, column + ARM, TN, reRoll);
-            result += chance;
-        }
-    }
-    if (DMG == 0) {
-        result += 1.0 - probGettingSuccesses(TAC, 1 + ARM, TN, reRoll);
-    }
-    return result;
-}
-
-function buildExactDamageCache(TAC, TN, ARM, dmgBoost, maxDMG, whichStep, reRoll) {
-    var result = 0.0;
-    var damage = 0;
-    damageProbCache[whichStep] = []
-    if (whichStep == 0) {
-        for (damage = 0; damage <= maxDMG; damage++) {
-            damageProbCache[whichStep][damage] = probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, damage, reRoll);
-        }
-        return;
-    }
-    for (damage = 0; damage < (maxDMG + damageProbCache[whichStep - 1].length); damage++) {
-        damageProbCache[whichStep][damage] = 0.0;
-        for (damage2 = 0; damage2 <= damage; damage2++) {
-            damageProbCache[whichStep][damage] += probExactlyThisMuchDamage(TAC, TN, ARM, dmgBoost, damage2, reRoll) * damageCacheWrapper(whichStep - 1, damage - damage2);
-        }
-    }
-}
-
-function printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharge, reRolls, maxChargeDMG) {
-    var outstring = "";
-    var damage = 0;
-    var probability = [];
-    var atLeastProbability = [];
-    var isTooWide = false;
-    var hitCount = 0;
-    if (maxDMG > 25)
-    {
-        isTooWide = true;
-    }
-    for (hitCount = 0; hitCount < HITS; hitCount++) {
-		var reRoll = (!doCharge && hitCount == 0 && reRolls == "first") || (reRolls == "all");
-        buildExactDamageCache(TAC, TN, ARM, dmgBoost, 1 + (maxDMG/HITS), hitCount, reRoll);
-    }
-	if (doCharge) {
-		var reRoll = reRolls == "first" || reRolls == "all";
-		buildExactDamageCache(TAC + 4, TN, ARM, dmgBoost, maxChargeDMG, HITS, reRoll);
-	}
-    for (damage = 0; damage <= maxDMG ; damage++) {
-		if (doCharge) {
-	        probability[damage] = damageCacheWrapper(HITS, damage);
-		}
-		else {
-	        probability[damage] = damageCacheWrapper(HITS - 1, damage);
-		}
-    }
-    for (damage = 0; damage <= maxDMG; damage++) {
-        atLeastProbability[damage] = 0.0;
-        for (greaterDamage = damage; greaterDamage <= maxDMG; greaterDamage++) {
-        atLeastProbability[damage] += probability[greaterDamage];
-        }
-    }
-    for (damage = 0; damage <= maxDMG; damage++) {
-    outstring = outstring + "<li style=\"width: " + (90.0/(maxDMG+1)).toFixed(1) + "%\">\n\t<span class=\"barlabel\">" + 
-		damage + "</span>\n\t<span class=\"count\" style=\"height: " + (probability[damage] * 100).toFixed(1) + "%\">" + probability[damage].toFixed(3) + "</span>\n\t<span class=\"barprob\"" + 
-		(isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + probability[damage].toFixed(3) + "</span>\n\t<span class=\"barcumprob\"" + 
-		(isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + atLeastProbability[damage].toFixed(3) + "</span>\n</li>\n"
-    }
-    return outstring;
-}
-
-function printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doCharge, reRolls, TAC2, TN2, ARM2, dmgBoost2, HITS2, doCharge2, reRolls2, maxDMG, maxChargeDMG) {
+function printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharge, reRolls, maxChargeDMG, damageColumns) {
 	var outstring = "";
-	var damage = 0;
-	var probability = [];
-	var atLeastProbability = [];
-	var probability2 = [];
-	var atLeastProbability2 = [];
+	var damageProbs = findDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharge, reRolls, maxChargeDMG, damageColumns);
 	var isTooWide = false;
-	var chartHeight = 46;/*chartHeight = 100 for old style*/
-	var hitCount = 0;
+	var width = 960, height = 500;
+	var chart = d3.select("#thenewchart");
+	chart.attr("width", width).attr("height", height + 200);
+	var y = d3.scaleLinear().range([height, 0]).domain([0,1]);
+	var x = d3.scaleBand().range([0, width]);
+	x.domain(damageProbs.map(function(d, i) { return i; }));
+	var barWidth = width / damageProbs.length;
+//	x.domain([0, d3.max(damageProbs, function(d) { return d.exactProb; })]);
+	chart.selectAll(".axis").remove();
+	var bar = chart.selectAll("g");
+	var barUpdate = bar.data(damageProbs);
+	barUpdate.exit().remove();
+	var barEnter = barUpdate.enter().append("g");
+	barEnter.append("rect");
+	barEnter.append("text");
+	barUpdate = barEnter.merge(barUpdate)
+		.attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)";});
+	barUpdate.on('mouseover', function(d, i) { barUpdate.select("rect").filter(function (b, j) { return j >= i; }).attr("fill", "green");
+			barUpdate.select("rect").filter(function (b, j) { return j < i; }).attr("fill", "steelblue"); })
+			.on('mouseout', function(d) { barUpdate.select("rect").attr("fill", "steelblue");} );
+	barUpdate.select("rect").attr("y", function(d) { return y(d.exactProb); })
+						   .attr("height", function(d) { return height - y(d.exactProb); })
+						   .attr("width", barWidth - 1).attr("fill", "steelblue")
+	barUpdate.select("text").attr("y", function(d) { return y(d.exactProb) + 3; })
+						   .attr("x", barWidth / 2)
+						   .attr("dy", ".75em")
+					   .text(function (d) { return d.exactProb.toFixed(3); });
+	var xAxis = d3.axisBottom(x).tickSize(0);
+	chart.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+	return "";
+}
+
+function printDamageInMultipleHitsOld(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharge, reRolls, maxChargeDMG, damageColumns) {
+	var outstring = "";
+	var damageProbs = findDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharge, reRolls, maxChargeDMG, damageColumns);
+	var isTooWide = false;
 	if (maxDMG > 25)/*maxDMG > 14 for old style*/
 	{
 		isTooWide = true;
 	}
-	
-	damageColumns = players[document.getElementById("player").value].playbook;
+    for (damage = 0; damage <= maxDMG; damage++) {
+    outstring = outstring + "<li style=\"width: " + (90.0/(maxDMG+1)).toFixed(1) + "%\">\n\t<span class=\"barlabel\">" + 
+		damage + "</span>\n\t<span class=\"count\" style=\"height: " + (damageProbs[damage].exactProb * 100).toFixed(1) + "%\">" + damageProbs[damage].exactProb.toFixed(3) + "</span>\n\t<span class=\"barprob\"" + 
+		(isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + damageProbs[damage].exactProb.toFixed(3) + "</span>\n\t<span class=\"barcumprob\"" + 
+		(isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + damageProbs[damage].cumProb.toFixed(3) + "</span>\n</li>\n"
+    }
+    return outstring;
+}
 
-    for (hitCount = 0; hitCount < HITS; hitCount++) {
-		var reRoll = (!doCharge && hitCount == 0 && reRolls == "first") || (reRolls == "all");
-        buildExactDamageCache(TAC, TN, ARM, dmgBoost, 1 + (maxDMG/HITS), hitCount, reRoll);
-    }
-	if (doCharge) {
-		var reRoll = reRolls == "first" || reRolls == "all";
-		buildExactDamageCache(TAC + 4, TN, ARM, dmgBoost, maxChargeDMG, HITS, reRoll);
+function printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doCharge, reRolls, TAC2, TN2, ARM2, dmgBoost2, HITS2, doCharge2, reRolls2, maxDMG, maxChargeDMG, damageColumns, damageColumns2) {
+	var outstring = "";
+	var damageProbs = findDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doCharge, reRolls, maxChargeDMG, damageColumns);
+	var damageProbs2 = findDamageInMultipleHits(TAC2, TN2, ARM2, dmgBoost2, maxDMG, HITS2, doCharge2, reRolls2, maxChargeDMG, damageColumns2);
+	var isTooWide = false;
+	var chartHeight = 46;/*chartHeight = 100 for old style*/
+	if (maxDMG > 25)/*maxDMG > 14 for old style*/
+	{
+		isTooWide = true;
 	}
-    for (damage = 0; damage <= maxDMG ; damage++) {
-		if (doCharge) {
-	        probability[damage] = damageCacheWrapper(HITS, damage);
-		}
-		else {
-	        probability[damage] = damageCacheWrapper(HITS - 1, damage);
-		}
-    }
 	for (damage = 0; damage <= maxDMG; damage++) {
-        atLeastProbability[damage] = 0.0;
-        for (greaterDamage = damage; greaterDamage <= maxDMG; greaterDamage++) {
-        atLeastProbability[damage] += probability[greaterDamage];
-        }
-	}
-	
-	damageColumns = players[document.getElementById("player2").value].playbook;
-	
-    for (hitCount = 0; hitCount < HITS2; hitCount++) {
-		var reRoll = (!doCharge2 && hitCount == 0 && reRolls2 == "first") || (reRolls2 == "all");
-        buildExactDamageCache(TAC2, TN2, ARM2, dmgBoost2, 1 + (maxDMG/HITS2), hitCount, reRoll);
-    }
-	if (doCharge2) {
-		var reRoll = reRolls2 == "first" || reRolls2 == "all";
-		buildExactDamageCache(TAC2 + 4, TN2, ARM2, dmgBoost2, maxChargeDMG, HITS2, reRoll);
-	}
-    for (damage = 0; damage <= maxDMG ; damage++) {
-		if (doCharge2) {
-	        probability2[damage] = damageCacheWrapper(HITS2, damage);
-		}
-		else {
-	        probability2[damage] = damageCacheWrapper(HITS2 - 1, damage);
-		}
-    }
-	for (damage = 0; damage <= maxDMG; damage++) {
-        atLeastProbability2[damage] = 0.0;
-        for (greaterDamage = damage; greaterDamage <= maxDMG; greaterDamage++) {
-        atLeastProbability2[damage] += probability2[greaterDamage];
-        }
-	}
-	
-	for (damage = 0; damage <= maxDMG; damage++) {
-    outstring = outstring + "<li style=\"width: " + (90.0/(maxDMG+1)).toFixed(1) + "%\">\n\t<span class=\"barlabel\">" + damage + "</span>\n\t<span class=\"count1\" style=\"height: " + (probability[damage] * chartHeight).toFixed(1) + "%\">" + probability[damage].toFixed(3) + "</span>\n\t<span class=\"barprob1\"" + (isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + probability[damage].toFixed(3) + "</span>\n\t<span class=\"barcumprob1\"" + (isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + atLeastProbability[damage].toFixed(3) + "</span>\n\t<span class=\"count2\" style=\"height: " + (probability2[damage] * chartHeight).toFixed(1) + "%\">" + probability2[damage].toFixed(3) + "</span>\n\t<span class=\"barprob2\"" + (isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + probability2[damage].toFixed(3) + "</span>\n\t<span class=\"barcumprob2\"" + (isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + atLeastProbability2[damage].toFixed(3) + "</span>\n</li>\n"
+	outstring = outstring + "<li style=\"width: " + (90.0/(maxDMG+1)).toFixed(1) + "%\">\n\t<span class=\"barlabel\">" + 
+		damage + "</span>\n\t<span class=\"count1\" style=\"height: " + (damageProbs[damage].exactProb * chartHeight).toFixed(1) + "%\">" + damageProbs[damage].exactProb.toFixed(3) + "</span>\n\t<span class=\"barprob1\"" + 
+		(isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + damageProbs[damage].exactProb.toFixed(3) + "</span>\n\t<span class=\"barcumprob1\"" + 
+		(isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + damageProbs[damage].cumProb.toFixed(3) + "</span>\n\t<span class=\"count2\" style=\"height: " + 
+		(damageProbs2[damage].exactProb * chartHeight).toFixed(1) + "%\">" + damageProbs2[damage].exactProb.toFixed(3) + "</span>\n\t<span class=\"barprob2\"" + 
+		(isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + damageProbs2[damage].exactProb.toFixed(3) + "</span>\n\t<span class=\"barcumprob2\"" + 
+		(isTooWide ? " style=\"transform: rotate(90deg);\"" : "") + ">" + damageProbs2[damage].cumProb.toFixed(3) + "</span>\n</li>\n"
 	}
 	return outstring;
 }
@@ -322,19 +301,19 @@ function calculateBarChart() {
 	
 	if (compareBox.checked)
 	{
-		damageColumns = players[document.getElementById("player2").value].playbook;
+		damageColumns2 = players[document.getElementById("player2").value].playbook;
 
 		maxDMGPerHit = 0;
 		effectiveDice = TAC2 - ARM2;
-		while (effectiveDice > damageColumns.length)
+		while (effectiveDice > damageColumns2.length)
 		{
-			maxDMGPerHit += damageColumns[damageColumns.length - 1];
-			effectiveDice -= damageColumns.length;
+			maxDMGPerHit += damageColumns2[damageColumns2.length - 1];
+			effectiveDice -= damageColumns2.length;
 	        if (dmgBoost2 != 0) {
 	            maxDMGPerHit += dmgBoost2;
 	        }
 		}
-		maxDMGPerHit += damageColumns[effectiveDice - 1];
+		maxDMGPerHit += damageColumns2[effectiveDice - 1];
 	    if (dmgBoost2 != 0) {
 	        maxDMGPerHit += dmgBoost2;
 	    }
@@ -345,15 +324,15 @@ function calculateBarChart() {
 		if (doChargeAttack2.checked) {
 			maxDMGPerHit = 0;
 			effectiveDice = TAC2 + 4 - ARM2;
-			while (effectiveDice > damageColumns.length)
+			while (effectiveDice > damageColumns2.length)
 			{
-				maxDMGPerHit += damageColumns[damageColumns.length - 1];
-				effectiveDice -= damageColumns.length;
+				maxDMGPerHit += damageColumns2[damageColumns2.length - 1];
+				effectiveDice -= damageColumns2.length;
 		        if (dmgBoost2 != 0) {
 		            maxDMGPerHit += dmgBoost2;
 		        }
 			}
-			maxDMGPerHit += damageColumns[effectiveDice - 1];
+			maxDMGPerHit += damageColumns2[effectiveDice - 1];
 		    if (dmgBoost2 != 0) {
 		        maxDMGPerHit += dmgBoost2;
 		    }
@@ -376,12 +355,11 @@ function calculateBarChart() {
 	var time = performance.now();
 	if (compareBox.checked == false)
 	{
-		document.getElementById("thechart").innerHTML = printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doChargeAttack.checked, reRolls, maxChargeDMG);
-		document.getElementById("thechart").className = "barchart";
+		printDamageInMultipleHits(TAC, TN, ARM, dmgBoost, maxDMG, HITS, doChargeAttack.checked, reRolls, maxChargeDMG, damageColumns);
 	}
 	else if (compareBox.checked == true)
 	{
-		document.getElementById("thechart").innerHTML = printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doChargeAttack.checked, reRolls, TAC2, TN2, ARM2, dmgBoost2, HITS2, doChargeAttack2.checked, reRolls2, maxDMG, maxChargeDMG);
+		document.getElementById("thechart").innerHTML = printCompareDamageInMultipleHits(TAC, TN, ARM, dmgBoost, HITS, doChargeAttack.checked, reRolls, TAC2, TN2, ARM2, dmgBoost2, HITS2, doChargeAttack2.checked, reRolls2, maxDMG, maxChargeDMG, damageColumns, damageColumns2);
 		document.getElementById("thechart").className = "barchart2";
 	}
 	var taken = performance.now() - time;
@@ -416,6 +394,7 @@ function didChangePlayerSelection() {
 			}
 		}
 	}
+	drawPlaybook(playerTable.value);
 }
 
 function didChangeCompareCharts() {

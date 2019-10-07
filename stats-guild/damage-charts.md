@@ -9,7 +9,8 @@ Charge Attack doesn't currently take into account abilities like Forceful Blow o
 
 <input type="checkbox" id="compareCharts"> Compare two charts
 
-<div id="mainplayer">
+<div id="playBookSVG1" class="playBookImage"></div>
+<div id="mainplayer" class="inputBoxes">
 		Player:
 		<select id="player">
 		</select>
@@ -30,9 +31,11 @@ Charge Attack doesn't currently take into account abilities like Forceful Blow o
 		<option value="first">First Attack</option>
 		<option value="all">All Attacks</option>
 		</select>
+		<table id="playBook1" width="25%">
+		</table>
 </div>
 
-<div id="extraplayer">	
+<div id="extraplayer" class="inputBoxes">	
 		<br />
 		Player 2
 		<select id="player2">
@@ -58,16 +61,22 @@ Charge Attack doesn't currently take into account abilities like Forceful Blow o
 
 <br />
 
-<button type="button" id="calculateButton">Calculate!</button>	
+<button type="button" id="calculateButton">Calculate!</button>
+
 <div id="chartkey">
 	<div style="width:20px; height:20px; display: inline-block; background:#490092;"></div><div style="display: inline;" id="captainName"></div>
 	<br />
 	<div style="width:20px; height:20px; display: inline-block; background:#DBD100;"></div><div style="display: inline;" id="captainName2"></div>
 </div>		
-<ul class="barchart" id="thechart">
-</ul>
+<!--- <ul class="barchart" id="thechart">
+</ul> --->
+<svg class="newchart" id="thenewchart">
+</svg>
 
 <p id="debugMessages"><p>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.6/svg.min.js" integrity="sha256-M8IkAPnXdVChgPQwts/KeepRP4ogs+hzBtPmVhUj5YA=" crossorigin="anonymous"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="../assets/js/players.js"></script>
+<script src="../assets/js/dice-maths.js"></script>
 <script src="../assets/js/damage-charts.js"></script>
